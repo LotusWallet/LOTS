@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LotS - Decentralized Storage Protocol</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="loading-screen">
+            <div class="loading-content">
+                <div class="logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <h1>LotS</h1>
+                </div>
+                <div class="loading-spinner"></div>
+                <p>Connecting to Internet Computer...</p>
+            </div>
+        </div>
+
+        <!-- Authentication Screen -->
+        <div id="auth-screen" class="auth-screen hidden">
+            <div class="auth-container">
+                <div class="auth-header">
+                    <div class="logo">
+                        <i class="fas fa-shield-alt"></i>
+                        <h1>LotS</h1>
+                    </div>
+                    <p class="tagline">Decentralized Storage Protocol</p>
+                    <p class="description">Secure, private, and decentralized storage for your sensitive information</p>
+                </div>
+                
+                <div class="auth-content">
+                    <div class="feature-list">
+                        <div class="feature">
+                            <i class="fas fa-lock"></i>
+                            <span>End-to-end encryption</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-server"></i>
+                            <span>Serverless architecture</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-user-shield"></i>
+                            <span>Your data, your control</span>
+                        </div>
+                    </div>
+                    
+                    <button id="login-btn" class="login-btn">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Connect with Internet Identity
+                    </button>
+                    
+                    <div class="auth-info">
+                        <p>New to Internet Computer? <a href="https://identity.ic0.app" target="_blank">Create an Internet Identity</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard -->
+        <div id="dashboard" class="dashboard hidden">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <div class="logo">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>LotS</span>
+                    </div>
+                </div>
+                <div class="header-center">
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="search-input" placeholder="Search your items...">
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <span id="user-principal"></span>
+                        <button id="logout-btn" class="logout-btn">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <nav class="nav-menu">
+                    <div class="nav-section">
+                        <h3>Categories</h3>
+                        <ul>
+                            <li><a href="#" data-filter="all" class="nav-link active"><i class="fas fa-th-large"></i> All Items</a></li>
+                            <li><a href="#" data-filter="Login" class="nav-link"><i class="fas fa-key"></i> Login Credentials</a></li>
+                            <li><a href="#" data-filter="CreditCard" class="nav-link"><i class="fas fa-credit-card"></i> Credit Cards</a></li>
+                            <li><a href="#" data-filter="BankAccount" class="nav-link"><i class="fas fa-university"></i> Bank Accounts</a></li>
+                            <li><a href="#" data-filter="Identity" class="nav-link"><i class="fas fa-id-card"></i> Identity Documents</a></li>
+                            <li><a href="#" data-filter="CryptoWallet" class="nav-link"><i class="fas fa-wallet"></i> Crypto Wallets</a></li>
+                            <li><a href="#" data-filter="SecureNote" class="nav-link"><i class="fas fa-sticky-note"></i> Secure Notes</a></li>
+                        </ul>
+                    </div>
+                    <div class="nav-section">
+                        <h3>Actions</h3>
+                        <ul>
+                            <li><button id="add-item-btn" class="add-btn"><i class="fas fa-plus"></i> Add New Item</button></li>
+                        </ul>
+                    </div>
+                </nav>
+                
+                <div class="storage-info">
+                    <h4>Storage Usage</h4>
+                    <div class="storage-bar">
+                        <div id="storage-progress" class="storage-progress"></div>
+                    </div>
+                    <p id="storage-text">0 MB / 500 MB</p>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <div class="content-header">
+                    <h2 id="content-title">All Items</h2>
+                    <div class="content-actions">
+                        <select id="sort-select">
+                            <option value="updated">Sort by Last Updated</option>
+                            <option value="created">Sort by Created Date</option>
+                            <option value="title">Sort by Title</option>
+                            <option value="type">Sort by Type</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="items-grid" class="items-grid">
+                    <!-- Items will be dynamically loaded here -->
+                </div>
+                
+                <div id="empty-state" class="empty-state hidden">
+                    <i class="fas fa-folder-open"></i>
+                    <h3>No items found</h3>
+                    <p>Start by adding your first secure item</p>
+                    <button class="add-first-item-btn"><i class="fas fa-plus"></i> Add Your First Item</button>
+                </div>
+            </main>
+        </div>
+
+        <!-- Item Modal -->
+        <div id="item-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modal-title">Add New Item</h3>
+                    <button id="close-modal" class="close-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="item-form">
+                        <div class="form-group">
+                            <label for="item-type">Item Type</label>
+                            <select id="item-type" required>
+                                <option value="">Select a type...</option>
+                                <option value="Login">Login Credentials</option>
+                                <option value="CreditCard">Credit Card</option>
+                                <option value="BankAccount">Bank Account</option>
+                                <option value="Identity">Identity Document</option>
+                                <option value="CryptoWallet">Crypto Wallet</option>
+                                <option value="SecureNote">Secure Note</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="item-title">Title</label>
+                            <input type="text" id="item-title" required placeholder="Enter a title for this item">
+                        </div>
+                        
+                        <div id="dynamic-fields" class="dynamic-fields">
+                            <!-- Dynamic fields will be generated based on selected type -->
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="item-tags">Tags (optional)</label>
+                            <input type="text" id="item-tags" placeholder="Enter tags separated by commas">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="cancel-btn" class="btn-secondary">Cancel</button>
+                    <button type="submit" id="save-btn" class="btn-primary" form="item-form">
+                        <i class="fas fa-save"></i> Save Item
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- View Item Modal -->
+        <div id="view-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="view-modal-title">Item Details</h3>
+                    <div class="modal-actions">
+                        <button id="edit-item-btn" class="btn-icon" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button id="delete-item-btn" class="btn-icon" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <button id="close-view-modal" class="close-btn">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div id="item-details" class="item-details">
+                        <!-- Item details will be displayed here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="utils/icp-auth.js"></script>
+    <script src="utils/api.js"></script>
+    <script src="components/auth.js"></script>
+    <script src="components/dashboard.js"></script>
+    <script src="components/item-manager.js"></script>
+    <script src="components/template-selector.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>

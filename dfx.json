@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "canisters": {
+    "lots_factory": {
+      "type": "motoko",
+      "main": "src/backend/factory/main.mo"
+    },
+    "lots_storage_template": {
+      "type": "motoko",
+      "main": "src/backend/storage/main.mo"
+    },
+    "lots_frontend": {
+      "type": "assets",
+      "source": [
+        "src/frontend/dist/"
+      ]
+    }
+  },
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8000",
+      "type": "ephemeral"
+    },
+    "ic": {
+      "providers": ["https://ic0.app"],
+      "type": "persistent"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  }
+}
