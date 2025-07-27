@@ -3,11 +3,11 @@
   "canisters": {
     "lots_factory": {
       "type": "motoko",
-      "main": "src/backend/factory/main.mo"
+      "main": "src/factory/main.mo"
     },
     "lots_storage_template": {
       "type": "motoko",
-      "main": "src/backend/storage/main.mo"
+      "main": "src/storage/main.mo"
     },
     "lots_frontend": {
       "type": "assets",

@@ -1,9 +1,7 @@
 import Principal "mo:base/Principal";
 import Time "mo:base/Time";
 import HashMap "mo:base/HashMap";
-import Array "mo:base/Array";
-import Result "mo:base/Result";
-import IC "mo:ic";
+import Iter "mo:base/Iter";
 import Types "../shared/types";
 import Templates "../shared/templates";
 
@@ -19,14 +17,14 @@ actor LotSFactory {
 
     // 系统升级时保存状态
     system func preupgrade() {
-        userCanistersEntries := userCanisters.entries() |> Iter.toArray(_);
+        userCanistersEntries := Iter.toArray(userCanisters.entries());
     };
 
     system func postupgrade() {
         userCanistersEntries := [];
     };
 
-    // 创建用户专属Storage Canister
+    // 简化版本：暂时返回模拟的Canister信息
     public shared(msg) func createStorageCanister() : async Types.Result<Types.CanisterInfo, Types.Error> {
         let caller = msg.caller;
         
@@ -38,49 +36,17 @@ actor LotSFactory {
             case null {};
         };
 
-        try {
-            // 创建新的Storage Canister
-            let ic : IC.Service = actor("aaaaa-aa");
-            let settings = {
-                controllers = ?[caller, Principal.fromActor(LotSFactory)];
-                compute_allocation = null;
-                memory_allocation = null;
-                freezing_threshold = null;
-            };
-            
-            let createResult = await ic.create_canister({
-                settings = ?settings;
-            });
-            
-            let canisterId = createResult.canister_id;
-            
-            // 安装Storage Canister代码
-            // 注意：这里需要预先编译好的Storage Canister WASM代码
-            // 实际部署时需要替换为真实的WASM模块
-            let wasmModule = "\00asm\01\00\00\00"; // 占位符
-            
-            await ic.install_code({
-                mode = #install;
-                canister_id = canisterId;
-                wasm_module = wasmModule;
-                arg = Principal.toBlob(caller); // 传递owner信息
-            });
-            
-            // 记录Canister信息
-            let canisterInfo : Types.CanisterInfo = {
-                canisterId = canisterId;
-                owner = caller;
-                createdAt = Time.now();
-                storageUsed = 0;
-                itemCount = 0;
-            };
-            
-            userCanisters.put(caller, canisterInfo);
-            
-            #Ok(canisterInfo)
-        } catch (e) {
-            #Err(#InternalError("创建Canister失败"))
-        }
+        // 暂时创建一个模拟的Canister信息
+        let canisterInfo : Types.CanisterInfo = {
+            canisterId = caller; // 暂时使用caller作为canister ID
+            owner = caller;
+            createdAt = Time.now();
+            storageUsed = 0;
+            itemCount = 0;
+        };
+        
+        userCanisters.put(caller, canisterInfo);
+        #Ok(canisterInfo)
     };
 
     // 获取用户的Canister信息
