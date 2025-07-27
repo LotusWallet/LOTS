@@ -97,15 +97,15 @@ class ICPService {
       identity,
       host: this.isLocal ? 'http://localhost:8000' : 'https://ic0.app'
     });
-
+  
     if (this.isLocal) {
       await this.agent.fetchRootKey();
     }
-
+  
     // Create factory actor
     const factoryCanisterId = this.isLocal 
       ? 'rrkah-fqaaa-aaaaa-aaaaq-cai' // Local canister ID
-      : 'your-factory-canister-id'; // Production canister ID
+      : 'amo65-5iaaa-aaaac-a3ubq-cai'; // 正确的生产环境 canister ID
     
     this.factoryActor = Actor.createActor(factoryIdl, {
       agent: this.agent,

@@ -30,7 +30,7 @@ actor LotSFactory {
         
         // 检查用户是否已有Canister
         switch (userCanisters.get(caller)) {
-            case (?existing) {
+            case (?_existing) {
                 return #Err(#InvalidInput("用户已拥有Storage Canister"));
             };
             case null {};
