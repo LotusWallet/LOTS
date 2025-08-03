@@ -2,68 +2,100 @@ import Time "mo:base/Time";
 import Principal "mo:base/Principal";
 
 module {
-    // 存储项目类型枚举
+    // Storage item type enumeration
     public type ItemType = {
-        #Login;           // 登录信息
-        #CreditCard;      // 信用卡信息
-        #BankAccount;     // 银行账户
-        #Identity;        // 身份信息
-        #CryptoWallet;    // 加密钱包
-        #SecureNote;      // 安全笔记
-        #Custom: Text;    // 自定义类型
+        #Login;           // Login information
+        #CreditCard;      // Credit card information
+        #BankAccount;     // Bank account
+        #Identity;        // Identity information
+        #CryptoWallet;    // Crypto wallet
+        #SecureNote;      // Secure note
+        #DriverLicense;   // Driver license
+        #OTP;            // Two-factor authentication
+        #Custom: Text;    // Custom type
     };
 
-    // 加密数据结构
+    // Encrypted data structure
     public type EncryptedData = {
-        data: Blob;           // 加密后的数据
-        nonce: Blob;          // 加密随机数
-        tag: Blob;            // 认证标签
+        data: Blob;           // Encrypted data
+        nonce: Blob;          // Encryption nonce
+        tag: Blob;            // Authentication tag
     };
 
-    // 存储项目
+    // Storage item
     public type StorageItem = {
-        id: Text;                    // 唯一标识符
-        itemType: ItemType;          // 项目类型
-        title: Text;                 // 标题
-        encryptedData: EncryptedData; // 加密数据
-        createdAt: Time.Time;        // 创建时间
-        updatedAt: Time.Time;        // 更新时间
-        tags: [Text];                // 标签
+        id: Text;                    // Unique identifier
+        itemType: ItemType;          // Item type
+        title: Text;                 // Title
+        encryptedData: EncryptedData; // Encrypted data
+        createdAt: Time.Time;        // Creation time
+        updatedAt: Time.Time;        // Update time
+        tags: [Text];                // Tags
+        customFields: [CustomField]; // Custom fields
     };
 
-    // 存储模板
+    // Custom field
+    public type CustomField = {
+        name: Text;
+        value: Text;
+        fieldType: FieldType;
+        encrypted: Bool;
+    };
+
+    // Storage template
     public type StorageTemplate = {
         templateType: ItemType;
         fields: [TemplateField];
         description: Text;
+        category: Text;
+        icon: ?Text;
     };
 
-    // 模板字段
+    // Template field
     public type TemplateField = {
         name: Text;
         fieldType: FieldType;
         required: Bool;
         placeholder: ?Text;
+        description: ?Text;
+        validation: ?Text;
+        multiSelect: Bool;
+        options: ?[Text];
     };
 
-    // 字段类型
+    // Field type
     public type FieldType = {
-        #Text;
-        #Password;
-        #Email;
-        #URL;
-        #Number;
-        #Date;
-        #TextArea;
+        #Text;           // Plain text
+        #Password;       // Password
+        #Email;          // Email
+        #URL;            // Website URL
+        #Number;         // Number
+        #Date;           // Date
+        #DateTime;       // Date and time
+        #TextArea;       // Multi-line text
+        #Phone;          // Phone number
+        #Select;         // Single select dropdown
+        #MultiSelect;    // Multi-select
+        #Checkbox;       // Checkbox
+        #File;           // File
+        #Image;          // Image
+        #OTPSecret;      // OTP secret key
+        #Mnemonic;       // Mnemonic phrase
+        #PrivateKey;     // Private key
+        #Address;        // Address
+        #Currency;       // Currency amount
+        #Percentage;     // Percentage
+        #Country;        // Country
+        #Custom: Text;   // Custom type
     };
 
-    // API响应类型
+    // API response type
     public type Result<T, E> = {
         #Ok: T;
         #Err: E;
     };
 
-    // 错误类型
+    // Error type
     public type Error = {
         #NotFound;
         #Unauthorized;
@@ -73,7 +105,7 @@ module {
         #InternalError: Text;
     };
 
-    // Canister信息
+    // Canister information
     public type CanisterInfo = {
         canisterId: Principal;
         owner: Principal;
