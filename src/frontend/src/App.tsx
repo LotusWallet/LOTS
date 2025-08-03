@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { CssBaseline, Box } from '@mui/material';
+import { CssBaseline, Box, useMediaQuery } from '@mui/material';
 import { icpService } from './services/icpService';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
@@ -20,11 +20,44 @@ const theme = createTheme({
       main: '#dc004e',
     },
   },
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 600,
+      md: 900,
+      lg: 1200,
+      xl: 1536,
+    },
+  },
+  components: {
+    MuiContainer: {
+      styleOverrides: {
+        root: {
+          paddingLeft: '16px',
+          paddingRight: '16px',
+          '@media (max-width: 600px)': {
+            paddingLeft: '8px',
+            paddingRight: '8px',
+          },
+        },
+      },
+    },
+    MuiDrawer: {
+      styleOverrides: {
+        paper: {
+          '@media (max-width: 900px)': {
+            width: '280px',
+          },
+        },
+      },
+    },
+  },
 });
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   useEffect(() => {
     initializeApp();
@@ -50,11 +83,10 @@ function App() {
   };
 
   const handleLogin = async () => {
-    setLoading(true); // 添加加载状态
+    setLoading(true);
     try {
       const success = await icpService.login();
       if (success) {
-        // 重新初始化应用状态
         await initializeApp();
       }
     } catch (error) {
@@ -77,10 +109,25 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
-        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-          {user && <Navbar user={user} onLogout={handleLogout} />}
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          minHeight: '100vh',
+          overflow: 'hidden'
+        }}>
+          {user && (
+            <Navbar 
+              user={user} 
+              onLogout={handleLogout}
+              isMobile={isMobile}
+            />
+          )}
           
-          <Box sx={{ flex: 1 }}>
+          <Box sx={{ 
+            flex: 1,
+            display: 'flex',
+            overflow: 'hidden'
+          }}>
             <Routes>
               <Route 
                 path="/login" 
@@ -99,7 +146,7 @@ function App() {
               <Route 
                 path="/items" 
                 element={
-                  user ? <ItemsPage user={user} /> : 
+                  user ? <ItemsPage user={user} isMobile={isMobile} /> : 
                   <Navigate to="/login" replace />
                 } 
               />
