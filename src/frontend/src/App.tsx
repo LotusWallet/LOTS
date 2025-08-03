@@ -3,12 +3,14 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline, Box, useMediaQuery } from '@mui/material';
 import { icpService } from './services/icpService';
+import { cryptoService } from './services/cryptoService';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import ItemsPage from './pages/ItemsPage';
 import AddItemPage from './pages/AddItemPage';
 import Navbar from './components/Navbar';
 import LoadingScreen from './components/LoadingScreen';
+import MasterPasswordDialog from './components/MasterPasswordDialog';
 import { User } from './types';
 
 const theme = createTheme({
@@ -57,6 +59,8 @@ const theme = createTheme({
 function App() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showMasterPassword, setShowMasterPassword] = useState(false);
+  const [isFirstTimeSetup, setIsFirstTimeSetup] = useState(false);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   useEffect(() => {
@@ -74,11 +78,25 @@ function App() {
           principal,
           isAuthenticated: true
         });
+        
+        // Check if master password is set up
+        checkMasterPasswordSetup();
       }
     } catch (error) {
       console.error('Failed to initialize app:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const checkMasterPasswordSetup = () => {
+    const storedSalt = localStorage.getItem('lots_master_salt');
+    if (!storedSalt) {
+      setIsFirstTimeSetup(true);
+      setShowMasterPassword(true);
+    } else if (!cryptoService.isVaultUnlocked()) {
+      setIsFirstTimeSetup(false);
+      setShowMasterPassword(true);
     }
   };
 
@@ -98,7 +116,12 @@ function App() {
 
   const handleLogout = async () => {
     await icpService.logout();
+    cryptoService.lockVault();
     setUser(null);
+  };
+
+  const handleMasterPasswordUnlock = () => {
+    setShowMasterPassword(false);
   };
 
   if (loading) {
@@ -120,6 +143,11 @@ function App() {
               user={user} 
               onLogout={handleLogout}
               isMobile={isMobile}
+              onLockVault={() => {
+                cryptoService.lockVault();
+                setShowMasterPassword(true);
+                setIsFirstTimeSetup(false);
+              }}
             />
           )}
           
@@ -166,6 +194,14 @@ function App() {
             </Routes>
           </Box>
         </Box>
+        
+        {/* Master Password Dialog */}
+        <MasterPasswordDialog
+          open={showMasterPassword}
+          onClose={() => !isFirstTimeSetup && setShowMasterPassword(false)}
+          onUnlock={handleMasterPasswordUnlock}
+          isFirstTime={isFirstTimeSetup}
+        />
       </Router>
     </ThemeProvider>
   );

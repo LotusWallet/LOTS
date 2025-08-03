@@ -2,6 +2,7 @@ import { AuthClient } from '@dfinity/auth-client';
 import { Actor, HttpAgent } from '@dfinity/agent';
 import { Principal } from '@dfinity/principal';
 import { StorageItem, CanisterInfo, StorageTemplate, ItemType } from '../types';
+import { cryptoService, EncryptedData } from './cryptoService';
 
 // IDL interfaces (simplified)
 const factoryIdl = ({ IDL }: any) => {
@@ -223,37 +224,116 @@ class ICPService {
     });
   }
 
-  async storeItem(canisterId: string, itemType: ItemType, title: string, data: string, tags: string[]): Promise<string | null> {
-    await this.setupStorageActor(canisterId);
-    if (!this.storageActor) return null;
+  /**
+   * Store encrypted item
+   */
+  async storeItem(
+    canisterId: string, 
+    itemType: ItemType, 
+    title: string, 
+    data: any, 
+    tags: string[]
+  ): Promise<string | null> {
+    if (!cryptoService.isVaultUnlocked()) {
+      throw new Error('Vault is locked. Please unlock with master password.');
+    }
 
     try {
-      const result = await this.storageActor.storeItem(itemType, title, data, tags);
-      return 'Ok' in result ? result.Ok : null;
+      await this.setupStorageActor(canisterId);
+      if (!this.storageActor) return null;
+
+      // Encrypt the sensitive data
+      const encryptedData = cryptoService.encryptObject(data);
+      const encryptedDataString = JSON.stringify(encryptedData);
+
+      const result = await this.storageActor.storeItem(
+        itemType,
+        title,
+        encryptedDataString,
+        tags
+      );
+
+      if ('Ok' in result) {
+        return result.Ok;
+      } else {
+        console.error('Failed to store item:', result.Err);
+        return null;
+      }
     } catch (error) {
       console.error('Error storing item:', error);
       return null;
     }
   }
 
-  async getItems(canisterId: string): Promise<StorageItem[]> {
-    await this.setupStorageActor(canisterId);
-    if (!this.storageActor) return [];
+  /**
+   * Get and decrypt item
+   */
+  async getItem(
+    canisterId: string, 
+    itemId: string
+  ): Promise<{ item: StorageItem; data: any } | null> {
+    if (!cryptoService.isVaultUnlocked()) {
+      throw new Error('Vault is locked. Please unlock with master password.');
+    }
 
     try {
+      await this.setupStorageActor(canisterId);
+      if (!this.storageActor) return null;
+
+      const result = await this.storageActor.getItem(itemId);
+      
+      if ('Ok' in result) {
+        const [itemInfo, encryptedDataString] = result.Ok;
+        
+        // Decrypt the data
+        const encryptedData: EncryptedData = JSON.parse(encryptedDataString);
+        const decryptedData = cryptoService.decryptObject(encryptedData);
+        
+        const item: StorageItem = {
+          id: itemInfo.id,
+          itemType: itemInfo.itemType as ItemType,
+          title: itemInfo.title,
+          fields: decryptedData,
+          tags: itemInfo.tags,
+          createdAt: Number(itemInfo.createdAt),
+          updatedAt: Number(itemInfo.updatedAt)
+        };
+        
+        return { item, data: decryptedData };
+      } else {
+        console.error('Failed to get item:', result.Err);
+        return null;
+      }
+    } catch (error) {
+      console.error('Error getting item:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Get all items (metadata only, no decryption)
+   */
+  async getItems(canisterId: string): Promise<StorageItem[]> {
+    try {
+      await this.setupStorageActor(canisterId);
+      if (!this.storageActor) return [];
+
       const result = await this.storageActor.listItems();
+      
       if ('Ok' in result) {
         return result.Ok.map((item: any) => ({
           id: item.id,
           itemType: item.itemType as ItemType,
           title: item.title,
-          fields: {},
+          fields: {}, // Don't decrypt here for performance
           tags: item.tags,
           createdAt: Number(item.createdAt),
           updatedAt: Number(item.updatedAt)
         }));
+      } else {
+        console.error('Failed to get items:', result.Err);
+        return [];
       }
-      return [];
     } catch (error) {
       console.error('Error getting items:', error);
       return [];
