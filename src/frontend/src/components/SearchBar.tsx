@@ -30,6 +30,17 @@ import {
 } from '@mui/icons-material';
 import { ItemType } from '../types';
 
+// Add this constant at the top of the file
+const ITEM_TYPES: ItemType[] = [
+  'Login',
+  'CreditCard', 
+  'BankAccount',
+  'Identity',
+  'CryptoWallet',
+  'SecureNote',
+  'Custom'
+];
+
 interface SearchBarProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
@@ -239,7 +250,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
                 <Box>
                   <Typography variant="body2" sx={{ mb: 1 }}>Filter by Type:</Typography>
                   <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-                    {Object.values(ItemType).map(type => (
+                    {ITEM_TYPES.map(type => (
                       <Chip
                         key={type}
                         label={type}
@@ -265,8 +276,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
                       InputLabelProps={{ shrink: true }}
                       value={dateRange?.start ? dateRange.start.toISOString().split('T')[0] : ''}
                       onChange={(e) => onDateRangeChange({
-                        ...dateRange,
-                        start: e.target.value ? new Date(e.target.value) : null
+                        start: e.target.value ? new Date(e.target.value) : null,
+                        end: dateRange?.end || null
                       })}
                     />
                     <TextField
@@ -276,7 +287,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
                       InputLabelProps={{ shrink: true }}
                       value={dateRange?.end ? dateRange.end.toISOString().split('T')[0] : ''}
                       onChange={(e) => onDateRangeChange({
-                        ...dateRange,
+                        start: dateRange?.start || null,
                         end: e.target.value ? new Date(e.target.value) : null
                       })}
                     />

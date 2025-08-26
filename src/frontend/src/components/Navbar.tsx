@@ -13,9 +13,11 @@ import { User } from '../types';
 interface NavbarProps {
   user: User;
   onLogout: () => void;
+  isMobile: boolean;
+  onLockVault: () => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) => {
+const Navbar: React.FC<NavbarProps> = ({ user, onLogout, isMobile, onLockVault }) => {
   return (
     <AppBar position="static" elevation={1}>
       <Toolbar>
@@ -28,15 +30,10 @@ const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) => {
             {user.principal.slice(0, 2).toUpperCase()}
           </Avatar>
           
-          <Typography variant="body2" sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            {user.principal}
-          </Typography>
-          
           <Button
             color="inherit"
             onClick={onLogout}
             startIcon={<Logout />}
-            size="small"
           >
             Logout
           </Button>

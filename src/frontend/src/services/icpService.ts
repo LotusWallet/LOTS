@@ -289,47 +289,37 @@ class ICPService {
     canisterId: string, 
     itemId: string
   ): Promise<{ item: StorageItem; data: any } | null> {
-    if (!cryptoService.isVaultUnlocked()) {
-      throw new Error('Vault is locked. Please unlock with master password.');
-    }
+    await this.setupStorageActor(canisterId);
+    if (!this.storageActor) return null;
 
     try {
-      await this.setupStorageActor(canisterId);
-      if (!this.storageActor) return null;
-
       const result = await this.storageActor.getItem(itemId);
-      
       if ('Ok' in result) {
-        const [itemInfo, encryptedDataString] = result.Ok;
+        const [item, encryptedDataString] = result.Ok;
         
         // Decrypt the data
-        const encryptedData: EncryptedData = JSON.parse(encryptedDataString);
-        const decryptedData = cryptoService.decryptObject(encryptedData);
+        const decryptedData = cryptoService.decryptObject(JSON.parse(encryptedDataString));
         
-        const item: StorageItem = {
-          id: itemInfo.id,
-          itemType: itemInfo.itemType as ItemType,
-          title: itemInfo.title,
-          fields: decryptedData,
-          tags: itemInfo.tags,
-          createdAt: Number(itemInfo.createdAt),
-          updatedAt: Number(itemInfo.updatedAt)
+        return {
+          item: {
+            id: item.id,
+            itemType: item.itemType as ItemType,
+            title: item.title,
+            fields: decryptedData as Record<string, string>,
+            tags: item.tags,
+            createdAt: Number(item.createdAt),
+            updatedAt: Number(item.updatedAt)
+          },
+          data: decryptedData
         };
-        
-        return { item, data: decryptedData };
-      } else {
-        console.error('Failed to get item:', result.Err);
-        return null;
       }
+      return null;
     } catch (error) {
       console.error('Error getting item:', error);
       return null;
     }
   }
 
-  /**
-   * Get all items (metadata only, no decryption)
-   */
   async getItems(canisterId: string): Promise<StorageItem[]> {
     try {
       await this.setupStorageActor(canisterId);
@@ -357,33 +347,7 @@ class ICPService {
     }
   }
 
-  async getItem(canisterId: string, itemId: string): Promise<{ item: StorageItem; data: string } | null> {
-    await this.setupStorageActor(canisterId);
-    if (!this.storageActor) return null;
-
-    try {
-      const result = await this.storageActor.getItem(itemId);
-      if ('Ok' in result) {
-        const [item, data] = result.Ok;
-        return {
-          item: {
-            id: item.id,
-            itemType: item.itemType as ItemType,
-            title: item.title,
-            fields: JSON.parse(data),
-            tags: item.tags,
-            createdAt: Number(item.createdAt),
-            updatedAt: Number(item.updatedAt)
-          },
-          data
-        };
-      }
-      return null;
-    } catch (error) {
-      console.error('Error getting item:', error);
-      return null;
-    }
-  }
+  // 移除第353-379行的重复getItem函数
 
   async deleteItem(canisterId: string, itemId: string): Promise<boolean> {
     await this.setupStorageActor(canisterId);

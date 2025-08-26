@@ -16,9 +16,10 @@ import LoadingScreen from '../components/LoadingScreen';
 
 interface ItemsPageProps {
   user: User;
+  isMobile: boolean;
 }
 
-const ItemsPage: React.FC<ItemsPageProps> = ({ user }) => {
+const ItemsPage: React.FC<ItemsPageProps> = ({ user, isMobile }) => {
   const [items, setItems] = useState<StorageItem[]>([]);
   const [filteredItems, setFilteredItems] = useState<StorageItem[]>([]);
   const [selectedItem, setSelectedItem] = useState<StorageItem | null>(null);
