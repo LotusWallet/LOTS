@@ -3,7 +3,6 @@ import { Actor, HttpAgent } from '@dfinity/agent';
 import { Principal } from '@dfinity/principal';
 import { StorageItem, CanisterInfo, StorageTemplate, ItemType } from '../types';
 import { cryptoService, EncryptedData } from './cryptoService';
-import { oisyService } from './oisyService';
 
 // IDL interfaces (simplified)
 const factoryIdl = ({ IDL }: any) => {
@@ -85,7 +84,7 @@ class ICPService {
 
   async init() {
     try {
-      await oisyService.init();
+      this.authClient = await AuthClient.create();
       await this.setupAgent();
     } catch (error) {
       console.error('Failed to initialize ICP service:', error);
@@ -93,35 +92,45 @@ class ICPService {
   }
 
   private async setupAgent() {
-    const isConnected = await oisyService.isConnected();
-    if (isConnected) {
-      const principal = await oisyService.getPrincipal();
-      if (principal) {
-        this.agent = new HttpAgent({
-          host: this.isLocal ? 'http://localhost:8000' : 'https://ic0.app',
-          identity: { getPrincipal: () => principal }
-        });
-        
-        if (this.isLocal) {
-          await this.agent.fetchRootKey();
-        }
-        
-        this.factoryActor = Actor.createActor(factoryIdl, {
-          agent: this.agent,
-          canisterId: this.isLocal ? 'rrkah-fqaaa-aaaaa-aaaaq-cai' : 'factory-canister-id'
-        });
+    if (this.authClient && await this.authClient.isAuthenticated()) {
+      const identity = this.authClient.getIdentity();
+      this.agent = new HttpAgent({
+        host: this.isLocal ? 'http://localhost:8000' : 'https://ic0.app',
+        identity
+      });
+      
+      if (this.isLocal) {
+        await this.agent.fetchRootKey();
       }
+      
+      this.factoryActor = Actor.createActor(factoryIdl, {
+        agent: this.agent,
+        canisterId: this.isLocal ? 'rrkah-fqaaa-aaaaa-aaaaq-cai' : 'factory-canister-id'
+      });
     }
   }
 
   async login(): Promise<boolean> {
     try {
-      const connected = await oisyService.connect();
-      if (connected) {
-        await this.setupAgent();
-        return true;
+      if (!this.authClient) {
+        await this.init();
       }
-      return false;
+      
+      return new Promise((resolve) => {
+        this.authClient!.login({
+          identityProvider: this.isLocal 
+            ? 'http://localhost:8000/?canisterId=rdmx6-jaaaa-aaaaa-aaadq-cai'
+            : 'https://identity.ic0.app',
+          onSuccess: async () => {
+            await this.setupAgent();
+            resolve(true);
+          },
+          onError: (error) => {
+            console.error('Login failed:', error);
+            resolve(false);
+          }
+        });
+      });
     } catch (error) {
       console.error('Login failed:', error);
       return false;
@@ -129,22 +138,35 @@ class ICPService {
   }
 
   async logout(): Promise<void> {
-    await oisyService.disconnect();
+    if (this.authClient) {
+      await this.authClient.logout();
+    }
     this.agent = null;
     this.factoryActor = null;
     this.storageActor = null;
   }
 
   async isAuthenticated(): Promise<boolean> {
-    return await oisyService.isConnected();
+    if (!this.authClient) {
+      await this.init();
+    }
+    return this.authClient ? await this.authClient.isAuthenticated() : false;
   }
 
   async getPrincipal(): Promise<string> {
-    return await oisyService.getPrincipalText();
+    if (this.authClient && await this.authClient.isAuthenticated()) {
+      return this.authClient.getIdentity().getPrincipal().toString();
+    }
+    return '';
   }
 
   async getAccountId(): Promise<string> {
-    return await oisyService.getFormattedAccountId();
+    if (this.authClient && await this.authClient.isAuthenticated()) {
+      const principal = this.authClient.getIdentity().getPrincipal();
+      // Convert principal to account ID format
+      return principal.toString();
+    }
+    return '';
   }
 
   async createStorageCanister(): Promise<CanisterInfo | null> {

@@ -93,7 +93,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
             }
           }}
         >
-          Connect with OISY Wallet
+          Login with Internet Identity
         </Button>
         
         <Typography variant="body2" sx={{ mt: 2, color: 'text.secondary' }}>
@@ -255,7 +255,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                 <ListItemIcon><Speed color="primary" sx={{ fontSize: 30 }} /></ListItemIcon>
                 <ListItemText 
                   primary={<Typography variant="h6" fontWeight="bold">Instant Access</Typography>}
-                  secondary="Access your data anywhere with your OISY wallet"
+                  secondary="Access your data anywhere with your Internet Identity"
                 />
               </ListItem>
               <ListItem>
