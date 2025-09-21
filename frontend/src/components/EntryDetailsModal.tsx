@@ -1,0 +1,322 @@
+import React, { useState, useEffect } from 'react';
+import { X, Edit, Trash2, Copy, Eye, EyeOff, Clock, CheckCircle } from 'lucide-react';
+import { useUpdateDataEntry, useDeleteDataEntry, useGenerateTOTP, FrontendDataEntry } from '../hooks/useQueries';
+import LoadingSpinner from './LoadingSpinner';
+
+interface Field {
+  name: string;
+  type: 'text' | 'password' | 'otp';
+  value: string;
+}
+
+interface EntryDetailsModalProps {
+  entry: FrontendDataEntry;
+  onClose: () => void;
+}
+
+export default function EntryDetailsModal({ entry, onClose }: EntryDetailsModalProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedEntry, setEditedEntry] = useState(entry);
+  const [showPasswords, setShowPasswords] = useState<Record<number, boolean>>({});
+  const [copiedField, setCopiedField] = useState<number | null>(null);
+  const [totpCodes, setTotpCodes] = useState<Record<number, { code: string; timeLeft: number }>>({});
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const updateEntry = useUpdateDataEntry();
+  const deleteEntry = useDeleteDataEntry();
+  const generateTOTP = useGenerateTOTP();
+
+  // Generate TOTP codes for OTP fields
+  useEffect(() => {
+    const otpFields = entry.fields
+      .map((field, index) => ({ field, index }))
+      .filter(({ field }) => field.type === 'otp');
+
+    if (otpFields.length === 0) return;
+
+    const updateTOTP = async () => {
+      for (const { field, index } of otpFields) {
+        try {
+          const result = await generateTOTP.mutateAsync(field.value);
+          setTotpCodes(prev => ({
+            ...prev,
+            [index]: result
+          }));
+        } catch (error) {
+          console.error('Failed to generate TOTP:', error);
+        }
+      }
+    };
+
+    updateTOTP();
+    const interval = setInterval(updateTOTP, 1000);
+    return () => clearInterval(interval);
+  }, [entry.fields, generateTOTP]);
+
+  const handleCopy = async (text: string, fieldIndex: number) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedField(fieldIndex);
+      setTimeout(() => setCopiedField(null), 2000);
+    } catch (error) {
+      console.error('Failed to copy:', error);
+    }
+  };
+
+  const togglePasswordVisibility = (index: number) => {
+    setShowPasswords(prev => ({
+      ...prev,
+      [index]: !prev[index]
+    }));
+  };
+
+  const handleSave = async () => {
+    try {
+      await updateEntry.mutateAsync({
+        ...editedEntry
+      });
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Failed to update entry:', error);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await deleteEntry.mutateAsync(entry.id);
+      onClose();
+    } catch (error) {
+      console.error('Failed to delete entry:', error);
+    }
+  };
+
+  const formatDate = (timestamp: number) => {
+    return new Date(timestamp).toLocaleString('zh-CN');
+  };
+
+  const updateField = (index: number, updates: Partial<Field>) => {
+    setEditedEntry(prev => ({
+      ...prev,
+      fields: prev.fields.map((field, i) => 
+        i === index ? { ...field, ...updates } : field
+      )
+    }));
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900">
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={editedEntry.title}
+                  onChange={(e) => setEditedEntry(prev => ({ ...prev, title: e.target.value }))}
+                  className="text-xl font-semibold bg-transparent border-b border-gray-300 focus:outline-none focus:border-blue-500"
+                />
+              ) : (
+                entry.title
+              )}
+            </h2>
+            <p className="text-sm text-gray-600">{entry.category}</p>
+          </div>
+          <div className="flex items-center space-x-2">
+            {!isEditing && (
+              <>
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <Edit className="h-5 w-5" />
+                </button>
+                <button
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                >
+                  <Trash2 className="h-5 w-5" />
+                </button>
+              </>
+            )}
+            <button
+              onClick={onClose}
+              className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <X className="h-6 w-6" />
+            </button>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+          {/* Fields */}
+          <div className="space-y-4">
+            {(isEditing ? editedEntry.fields : entry.fields).map((field, index) => (
+              <div key={index} className="border border-gray-200 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={field.name}
+                        onChange={(e) => updateField(index, { name: e.target.value })}
+                        className="bg-transparent border-b border-gray-300 focus:outline-none focus:border-blue-500"
+                      />
+                    ) : (
+                      field.name
+                    )}
+                  </label>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs bg-gray-100 px-2 py-1 rounded-full">
+                      {field.type === 'text' ? '文本' : field.type === 'password' ? '密码' : 'OTP'}
+                    </span>
+                    {!isEditing && (
+                      <button
+                        onClick={() => handleCopy(field.value, index)}
+                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                      >
+                        {copiedField === index ? (
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                        ) : (
+                          <Copy className="h-4 w-4" />
+                        )}
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="relative">
+                  {isEditing ? (
+                    <input
+                      type={field.type === 'password' && !showPasswords[index] ? 'password' : 'text'}
+                      value={field.value}
+                      onChange={(e) => updateField(index, { value: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  ) : field.type === 'otp' ? (
+                    <div className="space-y-2">
+                      <div className="font-mono text-lg bg-gray-50 p-3 rounded-md text-center">
+                        {totpCodes[index]?.code || '------'}
+                      </div>
+                      {totpCodes[index] && (
+                        <div className="flex items-center justify-center space-x-2 text-sm text-gray-600">
+                          <Clock className="h-4 w-4" />
+                          <span>{totpCodes[index].timeLeft}秒后刷新</span>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex items-center">
+                      <input
+                        type={field.type === 'password' && !showPasswords[index] ? 'password' : 'text'}
+                        value={field.value}
+                        readOnly
+                        className="flex-1 px-3 py-2 bg-gray-50 border border-gray-300 rounded-md"
+                      />
+                      {field.type === 'password' && (
+                        <button
+                          onClick={() => togglePasswordVisibility(index)}
+                          className="ml-2 text-gray-400 hover:text-gray-600"
+                        >
+                          {showPasswords[index] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Metadata */}
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
+              <div>
+                <span className="font-medium">创建时间：</span>
+                <span>{formatDate(entry.createdAt)}</span>
+              </div>
+              <div>
+                <span className="font-medium">更新时间：</span>
+                <span>{formatDate(entry.updatedAt)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex justify-end space-x-4 p-6 border-t border-gray-200">
+          {isEditing ? (
+            <>
+              <button
+                onClick={() => {
+                  setIsEditing(false);
+                  setEditedEntry(entry);
+                }}
+                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              >
+                取消
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={updateEntry.isPending}
+                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+              >
+                {updateEntry.isPending ? (
+                  <>
+                    <LoadingSpinner size="sm" className="mr-2" />
+                    保存中...
+                  </>
+                ) : (
+                  '保存更改'
+                )}
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={onClose}
+              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+            >
+              关闭
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-60">
+          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">确认删除</h3>
+            <p className="text-gray-600 mb-6">
+              您确定要删除条目"{entry.title}"吗？此操作无法撤销。
+            </p>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              >
+                取消
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleteEntry.isPending}
+                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+              >
+                {deleteEntry.isPending ? (
+                  <>
+                    <LoadingSpinner size="sm" className="mr-2" />
+                    删除中...
+                  </>
+                ) : (
+                  '确认删除'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
