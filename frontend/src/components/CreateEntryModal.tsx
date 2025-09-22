@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { X, Plus, Trash2, Eye, EyeOff, RefreshCw } from 'lucide-react';
+import { X, Plus, Trash2, Eye, EyeOff, RefreshCw, Key } from 'lucide-react';
 import { useCreateDataEntry } from '../hooks/useQueries';
 import LoadingSpinner from './LoadingSpinner';
+import PasswordGeneratorModal from './PasswordGeneratorModal';
 
 interface Field {
   name: string;
-  type: 'text' | 'password' | 'otp';
+  type: 'text' | 'password' | 'otp' | 'url' | 'email' | 'date';
   value: string;
 }
 
@@ -15,80 +16,80 @@ interface CreateEntryModalProps {
 
 const templates = [
   {
-    name: '加密钱包',
+    name: 'Crypto Wallet',
     icon: '🔐',
     fields: [
-      { name: '钱包名称', type: 'text' as const, value: '' },
-      { name: '钱包地址', type: 'text' as const, value: '' },
-      { name: '私钥', type: 'password' as const, value: '' },
-      { name: '助记词', type: 'password' as const, value: '' },
+      { name: 'Wallet Name', type: 'text' as const, value: '' },
+      { name: 'Wallet Address', type: 'text' as const, value: '' },
+      { name: 'Private Key', type: 'password' as const, value: '' },
+      { name: 'Seed Phrase', type: 'password' as const, value: '' },
     ]
   },
   {
-    name: '登录信息',
+    name: 'Login Credentials',
     icon: '👤',
     fields: [
-      { name: '网站/应用', type: 'text' as const, value: '' },
-      { name: '用户名', type: 'text' as const, value: '' },
-      { name: '密码', type: 'password' as const, value: '' },
-      { name: '邮箱', type: 'text' as const, value: '' },
+      { name: 'Website/App', type: 'url' as const, value: '' },
+      { name: 'Username', type: 'text' as const, value: '' },
+      { name: 'Password', type: 'password' as const, value: '' },
+      { name: 'Email', type: 'email' as const, value: '' },
     ]
   },
   {
-    name: '银行账户',
+    name: 'Bank Account',
     icon: '🏦',
     fields: [
-      { name: '银行名称', type: 'text' as const, value: '' },
-      { name: '账户号码', type: 'text' as const, value: '' },
-      { name: '开户人', type: 'text' as const, value: '' },
-      { name: '登录密码', type: 'password' as const, value: '' },
+      { name: 'Bank Name', type: 'text' as const, value: '' },
+      { name: 'Account Number', type: 'text' as const, value: '' },
+      { name: 'Account Holder', type: 'text' as const, value: '' },
+      { name: 'Login Password', type: 'password' as const, value: '' },
     ]
   },
   {
-    name: '信用卡',
+    name: 'Credit Card',
     icon: '💳',
     fields: [
-      { name: '卡号', type: 'text' as const, value: '' },
-      { name: '持卡人', type: 'text' as const, value: '' },
-      { name: '有效期', type: 'text' as const, value: '' },
+      { name: 'Card Number', type: 'text' as const, value: '' },
+      { name: 'Cardholder', type: 'text' as const, value: '' },
+      { name: 'Expiry Date', type: 'date' as const, value: '' },
       { name: 'CVV', type: 'password' as const, value: '' },
     ]
   },
   {
-    name: '身份证件',
+    name: 'Identity Document',
     icon: '🆔',
     fields: [
-      { name: '证件类型', type: 'text' as const, value: '' },
-      { name: '证件号码', type: 'text' as const, value: '' },
-      { name: '姓名', type: 'text' as const, value: '' },
-      { name: '有效期', type: 'text' as const, value: '' },
+      { name: 'Document Type', type: 'text' as const, value: '' },
+      { name: 'Document Number', type: 'text' as const, value: '' },
+      { name: 'Full Name', type: 'text' as const, value: '' },
+      { name: 'Expiry Date', type: 'date' as const, value: '' },
     ]
   },
   {
-    name: '驾驶证',
+    name: 'Driver\'s License',
     icon: '🚗',
     fields: [
-      { name: '驾驶证号', type: 'text' as const, value: '' },
-      { name: '姓名', type: 'text' as const, value: '' },
-      { name: '准驾车型', type: 'text' as const, value: '' },
-      { name: '有效期', type: 'text' as const, value: '' },
+      { name: 'License Number', type: 'text' as const, value: '' },
+      { name: 'Full Name', type: 'text' as const, value: '' },
+      { name: 'Vehicle Category', type: 'text' as const, value: '' },
+      { name: 'Expiry Date', type: 'date' as const, value: '' },
     ]
   },
   {
     name: 'OTP',
     icon: '📱',
     fields: [
-      { name: '服务名称', type: 'text' as const, value: '' },
-      { name: '账户', type: 'text' as const, value: '' },
-      { name: '密钥', type: 'otp' as const, value: '' },
+      { name: 'Service Name', type: 'text' as const, value: '' },
+      { name: 'Account', type: 'text' as const, value: '' },
+      { name: 'Secret Key', type: 'otp' as const, value: '' },
     ]
   },
   {
-    name: '安全备注',
+    name: 'Secure Notes',
     icon: '📝',
     fields: [
-      { name: '标题', type: 'text' as const, value: '' },
-      { name: '内容', type: 'text' as const, value: '' },
+      { name: 'Title', type: 'text' as const, value: '' },
+      { name: 'Content', type: 'text' as const, value: '' },
     ]
   },
 ];
@@ -98,6 +99,8 @@ export default function CreateEntryModal({ onClose }: CreateEntryModalProps) {
   const [title, setTitle] = useState('');
   const [fields, setFields] = useState<Field[]>([]);
   const [showPasswords, setShowPasswords] = useState<Record<number, boolean>>({});
+  const [showPasswordGenerator, setShowPasswordGenerator] = useState(false);
+  const [passwordFieldIndex, setPasswordFieldIndex] = useState<number | null>(null);
   
   const createEntry = useCreateDataEntry();
 
@@ -132,6 +135,18 @@ export default function CreateEntryModal({ onClose }: CreateEntryModalProps) {
     updateField(index, { value: password });
   };
 
+  const openPasswordGenerator = (index: number) => {
+    setPasswordFieldIndex(index);
+    setShowPasswordGenerator(true);
+  };
+
+  const handlePasswordSelect = (password: string) => {
+    if (passwordFieldIndex !== null) {
+      updateField(passwordFieldIndex, { value: password });
+    }
+    setPasswordFieldIndex(null);
+  };
+
   const togglePasswordVisibility = (index: number) => {
     setShowPasswords(prev => ({
       ...prev,
@@ -155,12 +170,59 @@ export default function CreateEntryModal({ onClose }: CreateEntryModalProps) {
     }
   };
 
+  const renderFieldInput = (field: Field, index: number) => {
+    if (field.type === 'date') {
+      return (
+        <input
+          type="date"
+          value={field.value}
+          onChange={(e) => updateField(index, { value: e.target.value })}
+          className="w-full px-3 py-2 pr-24 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        />
+      );
+    }
+
+    if (field.type === 'email') {
+      return (
+        <input
+          type="email"
+          value={field.value}
+          onChange={(e) => updateField(index, { value: e.target.value })}
+          placeholder="Field value"
+          className="w-full px-3 py-2 pr-24 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        />
+      );
+    }
+
+    if (field.type === 'url') {
+      return (
+        <input
+          type="url"
+          value={field.value}
+          onChange={(e) => updateField(index, { value: e.target.value })}
+          placeholder="Field value"
+          className="w-full px-3 py-2 pr-24 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        />
+      );
+    }
+
+    return (
+      <input
+        type={field.type === 'password' && !showPasswords[index] ? 'password' : 'text'}
+        value={field.value}
+        onChange={(e) => updateField(index, { value: e.target.value })}
+        placeholder="Field value"
+        className="w-full px-3 py-2 pr-24 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+      />
+    );
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">新建数据条目</h2>
+          <h2 className="text-xl font-semibold text-gray-900">Create New Data Entry</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -172,7 +234,7 @@ export default function CreateEntryModal({ onClose }: CreateEntryModalProps) {
         <div className="flex h-[calc(90vh-120px)]">
           {/* Template Selection */}
           <div className="w-1/3 border-r border-gray-200 p-6 overflow-y-auto">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">选择模板</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Select Template</h3>
             <div className="space-y-2">
               {templates.map((template) => (
                 <button
@@ -200,13 +262,13 @@ export default function CreateEntryModal({ onClose }: CreateEntryModalProps) {
                 {/* Title */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    条目标题 *
+                    Entry Title *
                   </label>
                   <input
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder={`我的${selectedTemplate}`}
+                    placeholder={`My ${selectedTemplate}`}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     required
                   />
@@ -216,7 +278,7 @@ export default function CreateEntryModal({ onClose }: CreateEntryModalProps) {
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <label className="block text-sm font-medium text-gray-700">
-                      字段信息
+                      Field Information
                     </label>
                     <button
                       type="button"
@@ -224,7 +286,7 @@ export default function CreateEntryModal({ onClose }: CreateEntryModalProps) {
                       className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
                     >
                       <Plus className="h-4 w-4 mr-1" />
-                      添加字段
+                      Add Field
                     </button>
                   </div>
 
@@ -237,7 +299,7 @@ export default function CreateEntryModal({ onClose }: CreateEntryModalProps) {
                               type="text"
                               value={field.name}
                               onChange={(e) => updateField(index, { name: e.target.value })}
-                              placeholder="字段名称"
+                              placeholder="Field name"
                               className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             />
                             <select
@@ -245,9 +307,12 @@ export default function CreateEntryModal({ onClose }: CreateEntryModalProps) {
                               onChange={(e) => updateField(index, { type: e.target.value as Field['type'] })}
                               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             >
-                              <option value="text">文本</option>
-                              <option value="password">密码</option>
+                              <option value="text">Text</option>
+                              <option value="password">Password</option>
                               <option value="otp">OTP</option>
+                              <option value="url">URL</option>
+                              <option value="email">Email</option>
+                              <option value="date">Date</option>
                             </select>
                           </div>
                           <button
@@ -260,19 +325,14 @@ export default function CreateEntryModal({ onClose }: CreateEntryModalProps) {
                         </div>
 
                         <div className="relative">
-                          <input
-                            type={field.type === 'password' && !showPasswords[index] ? 'password' : 'text'}
-                            value={field.value}
-                            onChange={(e) => updateField(index, { value: e.target.value })}
-                            placeholder="字段值"
-                            className="w-full px-3 py-2 pr-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          />
+                          {renderFieldInput(field, index)}
                           {field.type === 'password' && (
-                            <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex space-x-1">
+                            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex space-x-1">
                               <button
                                 type="button"
                                 onClick={() => togglePasswordVisibility(index)}
                                 className="text-gray-400 hover:text-gray-600"
+                                title="Toggle visibility"
                               >
                                 {showPasswords[index] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                               </button>
@@ -280,8 +340,17 @@ export default function CreateEntryModal({ onClose }: CreateEntryModalProps) {
                                 type="button"
                                 onClick={() => generatePassword(index)}
                                 className="text-gray-400 hover:text-gray-600"
+                                title="Generate random password"
                               >
                                 <RefreshCw className="h-4 w-4" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => openPasswordGenerator(index)}
+                                className="text-blue-500 hover:text-blue-700"
+                                title="Open password generator"
+                              >
+                                <Key className="h-4 w-4" />
                               </button>
                             </div>
                           )}
@@ -298,7 +367,7 @@ export default function CreateEntryModal({ onClose }: CreateEntryModalProps) {
                     onClick={onClose}
                     className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
                   >
-                    取消
+                    Cancel
                   </button>
                   <button
                     type="submit"
@@ -308,10 +377,10 @@ export default function CreateEntryModal({ onClose }: CreateEntryModalProps) {
                     {createEntry.isPending ? (
                       <>
                         <LoadingSpinner size="sm" className="mr-2" />
-                        保存中...
+                        Saving...
                       </>
                     ) : (
-                      '保存条目'
+                      'Save Entry'
                     )}
                   </button>
                 </div>
@@ -320,13 +389,25 @@ export default function CreateEntryModal({ onClose }: CreateEntryModalProps) {
               <div className="flex items-center justify-center h-full text-gray-500">
                 <div className="text-center">
                   <div className="text-4xl mb-4">📋</div>
-                  <p>请选择一个模板开始创建条目</p>
+                  <p>Please select a template to start creating an entry</p>
                 </div>
               </div>
             )}
           </div>
         </div>
       </div>
+
+      {/* Password Generator Modal */}
+      {showPasswordGenerator && (
+        <PasswordGeneratorModal
+          onClose={() => {
+            setShowPasswordGenerator(false);
+            setPasswordFieldIndex(null);
+          }}
+          onPasswordSelect={handlePasswordSelect}
+          showUseButton={true}
+        />
+      )}
     </div>
   );
 }

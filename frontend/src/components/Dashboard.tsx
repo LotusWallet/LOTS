@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { useGetCallerUserProfile, useGetCanisterStatus, useDeployPersonalCanister, useGetDataEntries, FrontendDataEntry } from '../hooks/useQueries';
-import { Shield, Plus, Search, Filter, Database, AlertCircle, CheckCircle, XCircle } from 'lucide-react';
+import { Shield, Plus, Search, Filter, Database, AlertCircle, CheckCircle, XCircle, Key } from 'lucide-react';
 import LoginButton from './LoginButton';
 import LoadingSpinner from './LoadingSpinner';
 import CreateEntryModal from './CreateEntryModal';
 import EntryDetailsModal from './EntryDetailsModal';
 import EntryList from './EntryList';
+import PasswordGeneratorModal from './PasswordGeneratorModal';
 
 export default function Dashboard() {
   const { identity } = useInternetIdentity();
@@ -19,6 +20,7 @@ export default function Dashboard() {
   const [selectedEntry, setSelectedEntry] = useState<FrontendDataEntry | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('');
+  const [showPasswordGenerator, setShowPasswordGenerator] = useState(false);
 
   const principalId = identity?.getPrincipal().toString() || '';
   const shortPrincipal = principalId.slice(0, 8) + '...' + principalId.slice(-8);
@@ -44,6 +46,11 @@ export default function Dashboard() {
 
   const categories = [...new Set((entries || []).map(entry => entry.category))];
 
+  const handlePasswordGenerated = (password: string) => {
+    // For standalone usage, just copy to clipboard
+    navigator.clipboard.writeText(password);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -56,9 +63,21 @@ export default function Dashboard() {
             </div>
             
             <div className="flex items-center space-x-4">
+              {/* Password Generator Button - Only show if canister is deployed */}
+              {isCanisterDeployed && (
+                <button
+                  onClick={() => setShowPasswordGenerator(true)}
+                  className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                  title="Password Generator"
+                >
+                  <Key className="h-4 w-4 mr-2" />
+                  Password Generator
+                </button>
+              )}
+              
               <div className="text-right">
                 <p className="text-sm font-medium text-gray-900">
-                  {userProfile?.name || '用户'}
+                  {userProfile?.name || 'User'}
                 </p>
                 <p className="text-xs text-gray-500" title={principalId}>
                   {shortPrincipal}
@@ -75,10 +94,10 @@ export default function Dashboard() {
         {/* Welcome Section */}
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            欢迎回来，{userProfile?.name}！
+            Welcome back, {userProfile?.name}!
           </h2>
           <p className="text-gray-600">
-            管理您的安全数据条目，保护您的信息安全。
+            Manage your secure data entries and protect your information.
           </p>
         </div>
 
@@ -87,7 +106,7 @@ export default function Dashboard() {
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
             <div className="flex items-center">
               <LoadingSpinner size="sm" className="mr-3" />
-              <p className="text-blue-700">正在检查容器状态...</p>
+              <p className="text-blue-700">Checking container status...</p>
             </div>
           </div>
         ) : canisterStatus?.status === 'deployed' ? (
@@ -96,10 +115,10 @@ export default function Dashboard() {
               <CheckCircle className="h-6 w-6 text-green-600 mr-3 mt-0.5" />
               <div>
                 <h3 className="text-lg font-medium text-green-800 mb-2">
-                  个人容器已部署
+                  Personal Container Deployed
                 </h3>
                 <p className="text-green-700">
-                  您的个人数据容器运行正常，可以安全地管理您的数据条目。
+                  Your personal data container is running normally, and you can securely manage your data entries.
                 </p>
               </div>
             </div>
@@ -110,10 +129,10 @@ export default function Dashboard() {
               <XCircle className="h-6 w-6 text-red-600 mr-3 mt-0.5" />
               <div>
                 <h3 className="text-lg font-medium text-red-800 mb-2">
-                  容器部署失败
+                  Container Deployment Failed
                 </h3>
                 <p className="text-red-700 mb-4">
-                  个人容器部署失败。请稍后重试，或联系技术支持。
+                  Personal container deployment failed. Please try again later or contact technical support.
                 </p>
                 <button 
                   onClick={handleDeployCanister}
@@ -123,10 +142,10 @@ export default function Dashboard() {
                   {isCanisterDeploying ? (
                     <>
                       <LoadingSpinner size="sm" className="mr-2" />
-                      重试中...
+                      Retrying...
                     </>
                   ) : (
-                    '重试部署'
+                    'Retry Deployment'
                   )}
                 </button>
               </div>
@@ -138,10 +157,10 @@ export default function Dashboard() {
               <LoadingSpinner size="md" className="mr-3 mt-0.5" />
               <div>
                 <h3 className="text-lg font-medium text-blue-800 mb-2">
-                  正在部署个人容器
+                  Deploying Personal Container
                 </h3>
                 <p className="text-blue-700">
-                  请稍候，我们正在为您创建专属的安全数据容器...
+                  Please wait, we are creating a dedicated secure data container for you...
                 </p>
               </div>
             </div>
@@ -152,11 +171,11 @@ export default function Dashboard() {
               <AlertCircle className="h-6 w-6 text-yellow-600 mr-3 mt-0.5" />
               <div>
                 <h3 className="text-lg font-medium text-yellow-800 mb-2">
-                  需要部署个人容器
+                  Personal Container Not Deployed
                 </h3>
                 <p className="text-yellow-700 mb-4">
-                  要开始存储您的安全数据条目，我们需要部署您的个人容器。
-                  这确保您的数据完全隔离和加密。
+                  Deploy your personal container to start storing secure data entries.
+                  This ensures your data is completely isolated and encrypted.
                 </p>
                 <button 
                   onClick={handleDeployCanister}
@@ -166,12 +185,12 @@ export default function Dashboard() {
                   {isCanisterDeploying ? (
                     <>
                       <LoadingSpinner size="sm" className="mr-2" />
-                      部署中...
+                      Deploying...
                     </>
                   ) : (
                     <>
                       <Database className="h-4 w-4 mr-2" />
-                      部署个人容器
+                      Deploy Personal Container
                     </>
                   )}
                 </button>
@@ -186,10 +205,10 @@ export default function Dashboard() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex items-center space-x-4">
                 <div className="relative">
-                  <Search className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+                  <Search className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
-                    placeholder="搜索条目..."
+                    placeholder="Search entries..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -200,7 +219,7 @@ export default function Dashboard() {
                   onChange={(e) => setFilterCategory(e.target.value)}
                   className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="">所有分类</option>
+                  <option value="">All Categories</option>
                   {categories.map((category: string) => (
                     <option key={category} value={category}>{category}</option>
                   ))}
@@ -212,7 +231,7 @@ export default function Dashboard() {
                 className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                新建条目
+                New Entry
               </button>
             </div>
           </div>
@@ -223,7 +242,7 @@ export default function Dashboard() {
           entriesLoading ? (
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
               <LoadingSpinner size="lg" />
-              <p className="mt-4 text-gray-600">正在加载数据条目...</p>
+              <p className="mt-4 text-gray-600">Loading data entries...</p>
             </div>
           ) : filteredEntries.length > 0 ? (
             <EntryList 
@@ -234,12 +253,12 @@ export default function Dashboard() {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
               <Database className="h-16 w-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-xl font-medium text-gray-900 mb-2">
-                {searchTerm || filterCategory ? '未找到匹配的条目' : '暂无数据条目'}
+                {searchTerm || filterCategory ? 'No matching entries found' : 'No entries found'}
               </h3>
               <p className="text-gray-600 mb-6 max-w-md mx-auto">
                 {searchTerm || filterCategory 
-                  ? '尝试调整搜索条件或筛选器以查找您需要的条目。'
-                  : '开始创建您的第一个安全数据条目，保护您的重要信息。'
+                  ? 'Try adjusting your search terms or filters to find the entries you need.'
+                  : 'Create your first secure data entry to get started.'
                 }
               </p>
               {!searchTerm && !filterCategory && (
@@ -248,7 +267,7 @@ export default function Dashboard() {
                   className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
                   <Plus className="h-4 w-4 mr-2" />
-                  创建第一个条目
+                  Create First Entry
                 </button>
               )}
             </div>
@@ -258,23 +277,23 @@ export default function Dashboard() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
             <Database className="h-16 w-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-xl font-medium text-gray-900 mb-2">
-              数据条目模板
+              Data Entry Templates
             </h3>
             <p className="text-gray-600 mb-6 max-w-md mx-auto">
-              一旦您的个人容器部署完成，您就可以创建和管理
-              密码、加密钱包、银行账户等安全数据条目。
+              Once your personal container is deployed, you can create and manage
+              secure data entries for passwords, crypto wallets, bank accounts, and more.
             </p>
             
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl mx-auto mt-8">
               {[
-                { name: '加密钱包', icon: '🔐' },
-                { name: '登录信息', icon: '👤' },
-                { name: '银行账户', icon: '🏦' },
-                { name: '信用卡', icon: '💳' },
-                { name: '身份证件', icon: '🆔' },
-                { name: '驾驶证', icon: '🚗' },
-                { name: '动态密码', icon: '📱' },
-                { name: '安全备注', icon: '📝' },
+                { name: 'Crypto Wallet', icon: '🔐' },
+                { name: 'Login Credentials', icon: '👤' },
+                { name: 'Bank Account', icon: '🏦' },
+                { name: 'Credit Card', icon: '💳' },
+                { name: 'Identity Document', icon: '🆔' },
+                { name: 'Driver\'s License', icon: '🚗' },
+                { name: 'OTP', icon: '📱' },
+                { name: 'Secure Notes', icon: '📝' },
               ].map((template) => (
                 <div
                   key={template.name}
@@ -303,21 +322,17 @@ export default function Dashboard() {
         />
       )}
 
+      {/* Global Password Generator Modal */}
+      {showPasswordGenerator && (
+        <PasswordGeneratorModal
+          onClose={() => setShowPasswordGenerator(false)}
+          onPasswordSelect={handlePasswordGenerated}
+        />
+      )}
+
       {/* Footer */}
       <footer className="bg-white border-t border-gray-200 mt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center text-gray-600">
-            © 2025. 使用 ❤️ 构建于{' '}
-            <a 
-              href="https://caffeine.ai" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:text-blue-800 transition-colors"
-            >
-              caffeine.ai
-            </a>
-          </div>
-        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"></div>
       </footer>
     </div>
   );

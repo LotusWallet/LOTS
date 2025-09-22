@@ -5,51 +5,51 @@ import LoginButton from './LoginButton';
 export default function LandingPage() {
   const dataTemplates = [
     {
-      name: '加密钱包',
+      name: 'Crypto Wallet',
       icon: <Shield className="h-8 w-8" />,
-      description: '安全存储您的加密货币钱包信息，包括钱包地址、私钥和助记词，确保数字资产安全。',
+      description: 'Securely store your cryptocurrency wallet information, including wallet addresses, private keys, and seed phrases to ensure digital asset security.',
       color: 'bg-blue-100 text-blue-600'
     },
     {
-      name: '登录信息',
+      name: 'Login Credentials',
       icon: <User className="h-8 w-8" />,
-      description: '管理网站和应用程序的登录凭据，包括用户名、密码和相关账户信息。',
+      description: 'Manage login credentials for websites and applications, including usernames, passwords, and related account information.',
       color: 'bg-green-100 text-green-600'
     },
     {
-      name: '银行账户',
+      name: 'Bank Account',
       icon: <Building className="h-8 w-8" />,
-      description: '保护您的银行账户详细信息，包括账户号码、开户行信息和网银登录凭据。',
+      description: 'Protect your bank account details, including account numbers, bank information, and online banking credentials.',
       color: 'bg-purple-100 text-purple-600'
     },
     {
-      name: '信用卡',
+      name: 'Credit Card',
       icon: <CreditCard className="h-8 w-8" />,
-      description: '安全存储信用卡和借记卡信息，包括卡号、有效期、CVV和持卡人信息。',
+      description: 'Securely store credit and debit card information, including card numbers, expiration dates, CVV, and cardholder information.',
       color: 'bg-red-100 text-red-600'
     },
     {
-      name: '身份证件',
+      name: 'Identity Document',
       icon: <IdCard className="h-8 w-8" />,
-      description: '管理各类身份证件信息，如身份证、护照、社保卡等重要证件数据。',
+      description: 'Manage various identity document information, such as ID cards, passports, social security cards, and other important document data.',
       color: 'bg-yellow-100 text-yellow-600'
     },
     {
-      name: '驾驶证',
+      name: 'Driver\'s License',
       icon: <Car className="h-8 w-8" />,
-      description: '存储驾驶证相关信息，包括证件号码、准驾车型、有效期等驾驶资质数据。',
+      description: 'Store driver\'s license related information, including license numbers, vehicle categories, expiration dates, and other driving qualification data.',
       color: 'bg-indigo-100 text-indigo-600'
     },
     {
-      name: 'OTP动态密码',
+      name: 'OTP',
       icon: <Smartphone className="h-8 w-8" />,
-      description: '管理双因素认证密钥，生成与Google身份验证器兼容的TOTP动态验证码。',
+      description: 'Manage two-factor authentication keys and generate Google Authenticator compatible TOTP dynamic verification codes.',
       color: 'bg-pink-100 text-pink-600'
     },
     {
-      name: '安全备注',
+      name: 'Secure Notes',
       icon: <FileText className="h-8 w-8" />,
-      description: '记录重要的安全信息和备注，如安全问题答案、重要提醒等敏感文本内容。',
+      description: 'Record important security information and notes, such as security question answers, important reminders, and other sensitive text content.',
       color: 'bg-gray-100 text-gray-600'
     }
   ];
@@ -57,38 +57,38 @@ export default function LandingPage() {
   const whyChooseReasons = [
     {
       icon: <Shield className="h-8 w-8" />,
-      title: '军用级安全加密',
-      description: '采用端到端加密技术，确保您的数据在传输和存储过程中始终受到最高级别的保护。',
+      title: 'Military-Grade Security Encryption',
+      description: 'Uses end-to-end encryption technology to ensure your data is always protected at the highest level during transmission and storage.',
       color: 'text-blue-600'
     },
     {
       icon: <Database className="h-8 w-8" />,
-      title: '个人专属容器',
-      description: '每位用户都拥有独立的数据容器，实现真正的数据隔离，保障您的隐私不被侵犯。',
+      title: 'Personal Dedicated Container',
+      description: 'Each user has an independent data container, achieving true data isolation and protecting your privacy from intrusion.',
       color: 'text-green-600'
     },
     {
       icon: <Key className="h-8 w-8" />,
-      title: '去中心化认证',
-      description: '基于Internet Identity的去中心化身份认证，无需记住复杂密码，安全便捷。',
+      title: 'Decentralized Identity Authentication',
+      description: 'Based on Internet Identity decentralized identity authentication, no need to remember complex passwords, secure and convenient.',
       color: 'text-purple-600'
     },
     {
       icon: <Globe className="h-8 w-8" />,
-      title: '完全去中心化',
-      description: '运行在Internet Computer区块链上，无单点故障，抗审查，真正的去中心化应用。',
+      title: 'Fully Decentralized',
+      description: 'Runs on the Internet Computer blockchain, no single point of failure, censorship-resistant, truly decentralized application.',
       color: 'text-red-600'
     },
     {
       icon: <Layers className="h-8 w-8" />,
-      title: '丰富数据模板',
-      description: '提供8种预设数据模板，覆盖日常生活中的各种敏感信息管理需求。',
+      title: 'Rich Data Templates',
+      description: 'Provides 8 preset data templates covering various sensitive information management needs in daily life.',
       color: 'text-yellow-600'
     },
     {
       icon: <Zap className="h-8 w-8" />,
-      title: '简单易用界面',
-      description: '直观的用户界面设计，让复杂的安全功能变得简单易用，人人都能轻松上手。',
+      title: 'Simple and Easy-to-Use Interface',
+      description: 'Intuitive user interface design makes complex security features simple and easy to use, accessible to everyone.',
       color: 'text-indigo-600'
     }
   ];
@@ -96,38 +96,38 @@ export default function LandingPage() {
   const keyBenefits = [
     {
       icon: <Lock className="h-8 w-8" />,
-      title: '数据主权',
-      description: '您完全拥有和控制自己的数据，无需担心第三方访问或数据泄露风险。',
+      title: 'Data Sovereignty',
+      description: 'You completely own and control your own data, no need to worry about third-party access or data breach risks.',
       gradient: 'from-blue-500 to-blue-600'
     },
     {
       icon: <Eye className="h-8 w-8" />,
-      title: '隐私保护',
-      description: '零知识架构确保即使是平台运营方也无法访问您的敏感数据内容。',
+      title: 'Privacy Protection',
+      description: 'Zero-knowledge architecture ensures that even platform operators cannot access your sensitive data content.',
       gradient: 'from-green-500 to-green-600'
     },
     {
       icon: <CheckCircle className="h-8 w-8" />,
-      title: '高可用性',
-      description: '基于区块链的分布式架构，确保服务24/7稳定运行，数据永不丢失。',
+      title: 'High Availability',
+      description: 'Blockchain-based distributed architecture ensures 24/7 stable service operation with data never lost.',
       gradient: 'from-purple-500 to-purple-600'
     },
     {
       icon: <Users className="h-8 w-8" />,
-      title: '多设备同步',
-      description: '在任何设备上安全访问您的数据，实现跨平台无缝同步体验。',
+      title: 'Multi-Device Sync',
+      description: 'Securely access your data on any device, achieving seamless cross-platform synchronization experience.',
       gradient: 'from-red-500 to-red-600'
     },
     {
       icon: <Award className="h-8 w-8" />,
-      title: '行业标准',
-      description: '遵循国际安全标准和最佳实践，为您提供企业级的数据保护能力。',
+      title: 'Industry Standards',
+      description: 'Follows international security standards and best practices, providing enterprise-level data protection capabilities.',
       gradient: 'from-yellow-500 to-yellow-600'
     },
     {
       icon: <Smartphone className="h-8 w-8" />,
-      title: '智能功能',
-      description: '集成密码生成器、TOTP动态码等智能工具，提升您的数字安全水平。',
+      title: 'Smart Features',
+      description: 'Integrates password generators, TOTP dynamic codes, and other smart tools to enhance your digital security level.',
       gradient: 'from-indigo-500 to-indigo-600'
     }
   ];
@@ -142,7 +142,9 @@ export default function LandingPage() {
               <Shield className="h-8 w-8 text-blue-600 mr-3" />
               <h1 className="text-2xl font-bold text-gray-900">LotS</h1>
             </div>
-            <LoginButton />
+            <div className="flex items-center gap-4">
+              <LoginButton />
+            </div>
           </div>
         </div>
       </header>
@@ -151,12 +153,11 @@ export default function LandingPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center">
           <h2 className="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-            安全数据管理
-            <span className="block text-blue-600">简单易用</span>
+            Secure Data Management
+            <span className="block text-blue-600">Made Simple</span>
           </h2>
           <p className="mt-6 max-w-2xl mx-auto text-xl text-gray-600">
-            使用军用级加密、个人容器隔离和无缝Internet Identity钱包认证，
-            存储和管理您的敏感数据。
+            Store and manage your sensitive data using military-grade encryption, personal container isolation, and seamless Internet Identity wallet authentication.
           </p>
           <div className="mt-10">
             <LoginButton />
@@ -166,16 +167,15 @@ export default function LandingPage() {
         {/* Comprehensive Data Templates Section */}
         <div className="mt-24">
           <div className="text-center mb-16">
-            <h3 className="text-3xl font-bold text-gray-900 mb-4">全面数据模板</h3>
+            <h3 className="text-3xl font-bold text-gray-900 mb-4">Comprehensive Data Templates</h3>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              LotS提供8种精心设计的数据模板，覆盖您日常生活中的各种敏感信息管理需求，
-              让数据组织变得简单高效。
+              LotS provides 8 carefully designed data templates covering various sensitive information management needs in your daily life, making data organization simple and efficient.
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {dataTemplates.map((template, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+              <div key={index} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                 <div className={`inline-flex items-center justify-center w-16 h-16 rounded-lg ${template.color} mb-4`}>
                   {template.icon}
                 </div>
@@ -189,10 +189,9 @@ export default function LandingPage() {
         {/* Why Choose LotS Section */}
         <div className="mt-24">
           <div className="text-center mb-16">
-            <h3 className="text-3xl font-bold text-gray-900 mb-4">为什么选择LotS？</h3>
+            <h3 className="text-3xl font-bold text-gray-900 mb-4">Why Choose LotS?</h3>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              LotS不仅仅是一个数据管理工具，更是您数字生活的安全守护者。
-              以下6个理由让LotS成为您的最佳选择。
+              LotS is not just a data management tool, but your digital life security guardian. Here are 6 reasons to choose LotS.
             </p>
           </div>
           
@@ -212,10 +211,9 @@ export default function LandingPage() {
         {/* Key Benefits Section */}
         <div className="mt-24">
           <div className="text-center mb-16">
-            <h3 className="text-3xl font-bold text-gray-900 mb-4">核心优势</h3>
+            <h3 className="text-3xl font-bold text-gray-900 mb-4">Core Advantages</h3>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              LotS平台的6大核心优势，为您提供无与伦比的数据安全体验，
-              让您在数字时代中安心无忧。
+              The 6 core advantages of the LotS platform provide you with an unparalleled data security experience, giving you peace of mind in the digital age.
             </p>
           </div>
           
@@ -238,9 +236,9 @@ export default function LandingPage() {
         {/* Original Features Grid */}
         <div className="mt-24">
           <div className="text-center mb-16">
-            <h3 className="text-3xl font-bold text-gray-900 mb-4">平台特性</h3>
+            <h3 className="text-3xl font-bold text-gray-900 mb-4">Platform Features</h3>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              基于最新技术构建的安全数据管理平台，为您提供全方位的数据保护。
+              A secure data management platform built with the latest technology, providing comprehensive data protection.
             </p>
           </div>
           
@@ -250,10 +248,10 @@ export default function LandingPage() {
                 <Lock className="h-6 w-6" />
               </div>
               <h3 className="mt-4 text-lg font-medium text-gray-900 text-center">
-                端到端加密
+                End-to-End Encryption
               </h3>
               <p className="mt-2 text-base text-gray-600 text-center">
-                您的数据在离开设备前就已加密，并在您的个人容器中保持安全。
+                Your data is encrypted before leaving your device and remains secure in your personal container.
               </p>
             </div>
 
@@ -262,10 +260,10 @@ export default function LandingPage() {
                 <Database className="h-6 w-6" />
               </div>
               <h3 className="mt-4 text-lg font-medium text-gray-900 text-center">
-                个人容器
+                Personal Container
               </h3>
               <p className="mt-2 text-base text-gray-600 text-center">
-                每个用户都拥有自己的隔离容器，确保最大安全性和数据主权。
+                Each user has their own isolated container, ensuring maximum security and data sovereignty.
               </p>
             </div>
 
@@ -274,10 +272,10 @@ export default function LandingPage() {
                 <Key className="h-6 w-6" />
               </div>
               <h3 className="mt-4 text-lg font-medium text-gray-900 text-center">
-                Internet Identity钱包认证
+                Internet Identity Authentication
               </h3>
               <p className="mt-2 text-base text-gray-600 text-center">
-                使用您的Internet Identity钱包进行安全认证，无需记住密码。
+                Secure authentication using your Internet Identity wallet, no passwords to remember.
               </p>
             </div>
 
@@ -286,10 +284,10 @@ export default function LandingPage() {
                 <Smartphone className="h-6 w-6" />
               </div>
               <h3 className="mt-4 text-lg font-medium text-gray-900 text-center">
-                动态密码支持
+                Dynamic Password Support
               </h3>
               <p className="mt-2 text-base text-gray-600 text-center">
-                生成和管理与Google身份验证器兼容的TOTP代码。
+                Generate and manage Google Authenticator compatible TOTP codes.
               </p>
             </div>
 
@@ -298,10 +296,10 @@ export default function LandingPage() {
                 <Shield className="h-6 w-6" />
               </div>
               <h3 className="mt-4 text-lg font-medium text-gray-900 text-center">
-                模板化管理
+                Template Management
               </h3>
               <p className="mt-2 text-base text-gray-600 text-center">
-                预置加密钱包、登录信息、银行账户等模板。
+                Pre-built templates for crypto wallets, login credentials, bank accounts, and more.
               </p>
             </div>
 
@@ -310,10 +308,10 @@ export default function LandingPage() {
                 <Globe className="h-6 w-6" />
               </div>
               <h3 className="mt-4 text-lg font-medium text-gray-900 text-center">
-                去中心化
+                Decentralized
               </h3>
               <p className="mt-2 text-base text-gray-600 text-center">
-                基于互联网计算机构建，实现真正的去中心化和抗审查。
+                Built on the Internet Computer, achieving true decentralization and censorship resistance.
               </p>
             </div>
           </div>
@@ -324,15 +322,15 @@ export default function LandingPage() {
           <div className="px-6 py-16 sm:px-12 sm:py-20 lg:px-16">
             <div className="text-center">
               <h3 className="text-3xl font-extrabold text-white mb-4">
-                准备保护您的数据了吗？
+                Ready to Protect Your Data?
               </h3>
               <p className="text-lg text-blue-100 mb-8 max-w-2xl mx-auto">
-                加入数千名信任LotS保护其最敏感信息的用户，开启您的安全数据管理之旅。
+                Join thousands of users who trust LotS to protect their most sensitive information and start your secure data management journey.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <LoginButton />
                 <div className="text-blue-100 text-sm">
-                  ✓ 完全免费使用 &nbsp;&nbsp; ✓ 无需信用卡 &nbsp;&nbsp; ✓ 即刻开始
+                  ✓ Completely free to use   ✓ No credit card required   ✓ Start immediately
                 </div>
               </div>
             </div>
@@ -344,7 +342,7 @@ export default function LandingPage() {
       <footer className="bg-white border-t border-gray-200 mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center text-gray-600">
-            © 2025. 使用 ❤️ 构建于{' '}
+            © 2025. Built with ❤️ using{' '}
             <a 
               href="https://caffeine.ai" 
               target="_blank" 

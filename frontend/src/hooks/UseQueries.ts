@@ -11,7 +11,7 @@ export interface FrontendDataEntry {
   updatedAt: number;
   fields: Array<{
     name: string;
-    type: 'text' | 'password' | 'otp';
+    type: 'text' | 'password' | 'otp' | 'url' | 'email' | 'date';
     value: string;
   }>;
 }
@@ -112,7 +112,7 @@ export function useGetDataEntries() {
         fields: entry.fields.map(field => ({
           name: field.name,
           value: field.value,
-          type: field.fieldType as 'text' | 'password' | 'otp',
+          type: field.fieldType as 'text' | 'password' | 'otp' | 'url' | 'email' | 'date',
         })),
       }));
     },
@@ -130,7 +130,7 @@ export function useCreateDataEntry() {
       category: string;
       fields: Array<{
         name: string;
-        type: 'text' | 'password' | 'otp';
+        type: 'text' | 'password' | 'otp' | 'url' | 'email' | 'date';
         value: string;
       }>;
     }) => {
@@ -166,7 +166,7 @@ export function useUpdateDataEntry() {
       category: string;
       fields: Array<{
         name: string;
-        type: 'text' | 'password' | 'otp';
+        type: 'text' | 'password' | 'otp' | 'url' | 'email' | 'date';
         value: string;
       }>;
     }) => {

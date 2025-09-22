@@ -53,11 +53,11 @@ persistent actor {
 
     public shared ({ caller }) func deployPersonalCanister() : async () {
         if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-            Debug.trap("未授权：只有注册用户可以部署个人容器");
+            Debug.trap("Unauthorized: Only registered users can deploy personal containers");
         };
 
         switch (principalMap.get(deployedCanisters, caller)) {
-            case (?true) { Debug.trap("您已经部署了个人容器，无需重复部署"); };
+            case (?true) { Debug.trap("You have already deployed a personal container, no need to redeploy"); };
             case _ {
                 deployedCanisters := principalMap.put(deployedCanisters, caller, true);
             };
@@ -76,6 +76,9 @@ persistent actor {
         #text;
         #password;
         #otp;
+        #url;
+        #email;
+        #date;
     };
 
     type Field = {
@@ -98,7 +101,7 @@ persistent actor {
 
     public shared ({ caller }) func createDataEntry(title : Text, category : Text, fields : [Field]) : async Text {
         if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-            Debug.trap("未授权：只有注册用户可以创建数据条目");
+            Debug.trap("Unauthorized: Only registered users can create data entries");
         };
 
         let id = Text.concat(title, Int.toText(Time.now()));
@@ -133,14 +136,14 @@ persistent actor {
 
     public shared ({ caller }) func updateDataEntry(id : Text, title : Text, category : Text, fields : [Field]) : async () {
         if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-            Debug.trap("未授权：只有注册用户可以更新数据条目");
+            Debug.trap("Unauthorized: Only registered users can update data entries");
         };
 
         switch (principalMap.get(dataEntries, caller)) {
-            case null { Debug.trap("未找到数据条目"); };
+            case null { Debug.trap("Data entry not found"); };
             case (?entries) {
                 switch (textMap.get(entries, id)) {
-                    case null { Debug.trap("未找到数据条目"); };
+                    case null { Debug.trap("Data entry not found"); };
                     case (?entry) {
                         let updatedEntry : DataEntry = {
                             id;
@@ -160,11 +163,11 @@ persistent actor {
 
     public shared ({ caller }) func deleteDataEntry(id : Text) : async () {
         if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-            Debug.trap("未授权：只有注册用户可以删除数据条目");
+            Debug.trap("Unauthorized: Only registered users can delete data entries");
         };
 
         switch (principalMap.get(dataEntries, caller)) {
-            case null { Debug.trap("未找到数据条目"); };
+            case null { Debug.trap("Data entry not found"); };
             case (?entries) {
                 let updatedEntries = textMap.delete(entries, id);
                 dataEntries := principalMap.put(dataEntries, caller, updatedEntries);

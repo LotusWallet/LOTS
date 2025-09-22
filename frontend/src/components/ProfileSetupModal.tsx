@@ -20,23 +20,23 @@ export default function ProfileSetupModal() {
           <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
             <User className="h-6 w-6 text-blue-600" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900">欢迎使用LotS</h2>
+          <h2 className="text-2xl font-bold text-gray-900">Welcome to LotS</h2>
           <p className="mt-2 text-gray-600">
-            让我们设置您的个人资料以开始使用
+            Let's set up your profile to get started
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-              您的姓名
+              Your Name
             </label>
             <input
               type="text"
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="请输入您的姓名"
+              placeholder="Please enter your name"
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               required
               disabled={saveProfile.isPending}
@@ -51,10 +51,10 @@ export default function ProfileSetupModal() {
             {saveProfile.isPending ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                设置中...
+                Setting up...
               </>
             ) : (
-              '继续'
+              'Continue'
             )}
           </button>
         </form>
@@ -62,7 +62,7 @@ export default function ProfileSetupModal() {
         {saveProfile.isError && (
           <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
             <p className="text-sm text-red-600">
-              保存个人资料失败，请重试。
+              Failed to save profile, please try again.
             </p>
           </div>
         )}
